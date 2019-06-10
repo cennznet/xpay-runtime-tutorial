@@ -27,7 +27,7 @@ decl_module! {
 	pub struct Module<T: Trait> for enum Call where origin: T::Origin {
 		fn deposit_event<T>() = default;
 
-		pub fn create_item(origin, quantity: u32, item: T::Item, price: PriceOf<T>) -> Result {
+		pub fn create_item(origin, quantity: u32, item: T::Item, price_asset_id: AssetIdOf<T>, price_amount: BalanceOf<T>) -> Result {
 			let origin = ensure_signed(origin)?;
 
 			let item_id = Self::next_item_id();
@@ -36,6 +36,8 @@ decl_module! {
 			let next_item_id = item_id.checked_add(&1.into()).ok_or_else(||"No new item id is available.")?;
 
 			<NextItemId<T>>::put(next_item_id);
+
+			let price = (price_asset_id, price_amount);
 
 			<Items<T>>::insert(item_id.clone(), item.clone());
 			<ItemOwners<T>>::insert(item_id.clone(), origin.clone());
@@ -67,27 +69,36 @@ decl_module! {
 			Ok(())
 		}
 
-		pub fn update_item(origin, item_id: T::ItemId, quantity: Option<u32>, price: Option<PriceOf<T>>) -> Result {
+		pub fn update_item(origin, item_id: T::ItemId, quantity: Option<u32>, price_asset_id: Option<AssetIdOf<T>>, price_amount: Option<BalanceOf<T>>) -> Result {
 			let origin = ensure_signed(origin)?;
 
 			ensure!(<Items<T>>::exists(item_id.clone()), "Item did not exist");
 
-			if let Some(quantity) = quantity {
+			let new_quantity = if let Some(quantity) = quantity {
 				<ItemQuantities<T>>::insert(item_id.clone(), quantity);
+				quantity
+			} else {
+				Self::item_quantity(item_id.clone())
+			};
+
+			let mut new_price = Self::item_price(item_id.clone()).expect("Item exists; Item price must exists; qed");
+
+			if let Some(asset_id) = price_asset_id {
+				new_price.0 = asset_id;
 			}
 
-			if let Some(price) = price {
-				<ItemPrices<T>>::insert(item_id.clone(), price);
+			if let Some(amount) = price_amount {
+				new_price.1 = amount;
 			}
 
-			let new_quantity = Self::item_quantity(item_id.clone());
-			let new_price = Self::item_price(item_id.clone()).expect("Item exists; Item price must exists; qed");
+			<ItemPrices<T>>::insert(item_id.clone(), new_price);
+
 			Self::deposit_event(RawEvent::ItemUpdated(origin, item_id, new_quantity, new_price));
 
 			Ok(())
 		}
 
-		pub fn purchase_item(origin, quantity: u32, item_id: T::ItemId, max_total_price: PriceOf<T>) -> Result {
+		pub fn purchase_item(origin, quantity: u32, item_id: T::ItemId, paying_asset_id: AssetIdOf<T>, max_total_paying_amount: BalanceOf<T>) -> Result {
 			let origin = ensure_signed(origin)?;
 
 			let new_quantity = Self::item_quantity(item_id.clone()).checked_sub(quantity).ok_or_else(||"Not enough quantity")?;
@@ -96,22 +107,22 @@ decl_module! {
 
 			let total_price_amount = item_price.1.checked_mul(&As::sa(quantity as u64)).ok_or_else(||"Total price overflow")?;
 
-			if item_price.0 == max_total_price.0 {
+			if item_price.0 == paying_asset_id {
 				// Same asset, GA transfer
 
-				ensure!(total_price_amount < max_total_price.1, "User paying price too low");
+				ensure!(total_price_amount < max_total_paying_amount, "User paying price too low");
 
 				<generic_asset::Module<T>>::make_transfer_with_event(&item_price.0, &origin, &seller, total_price_amount)?;
 			} else {
 				// Different asset, CENNZX-Spot transfer
 
 				<cennzx_spot::Module<T>>::make_asset_swap_output(
-					&origin,             // buyer
-					&seller,             // recipient
-					&max_total_price.0,  // asset_sold
-					&item_price.0,       // asset_bought
-					item_price.1,       // buy_amount
-					max_total_price.1,  // max_paying_amount
+					&origin,             	// buyer
+					&seller,             	// recipient
+					&paying_asset_id,  		// asset_sold
+					&item_price.0,       	// asset_bought
+					item_price.1,       	// buy_amount
+					max_total_paying_amount,  // max_paying_amount
 					<cennzx_spot::Module<T>>::fee_rate() // fee_rate
 				)?;
 			}
