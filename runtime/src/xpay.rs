@@ -69,31 +69,17 @@ decl_module! {
 			Ok(())
 		}
 
-		pub fn update_item(origin, item_id: T::ItemId, quantity: Option<u32>, price_asset_id: Option<AssetIdOf<T>>, price_amount: Option<BalanceOf<T>>) -> Result {
+		pub fn update_item(origin, item_id: T::ItemId, quantity: u32, price_asset_id: AssetIdOf<T>, price_amount: BalanceOf<T>) -> Result {
 			let origin = ensure_signed(origin)?;
 
 			ensure!(<Items<T>>::exists(item_id.clone()), "Item did not exist");
 
-			let new_quantity = if let Some(quantity) = quantity {
-				<ItemQuantities<T>>::insert(item_id.clone(), quantity);
-				quantity
-			} else {
-				Self::item_quantity(item_id.clone())
-			};
+			<ItemQuantities<T>>::insert(item_id.clone(), quantity);
 
-			let mut new_price = Self::item_price(item_id.clone()).expect("Item exists; Item price must exists; qed");
+			let price = (price_asset_id, price_amount);
+			<ItemPrices<T>>::insert(item_id.clone(), price.clone());
 
-			if let Some(asset_id) = price_asset_id {
-				new_price.0 = asset_id;
-			}
-
-			if let Some(amount) = price_amount {
-				new_price.1 = amount;
-			}
-
-			<ItemPrices<T>>::insert(item_id.clone(), new_price);
-
-			Self::deposit_event(RawEvent::ItemUpdated(origin, item_id, new_quantity, new_price));
+			Self::deposit_event(RawEvent::ItemUpdated(origin, item_id, quantity, price));
 
 			Ok(())
 		}
