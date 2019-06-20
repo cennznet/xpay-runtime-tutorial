@@ -1,0 +1,70 @@
+[package]
+name = 'cennznet-runtime-template-runtime'
+version = "1.0.0"
+authors = ["Centrality Developers <support@centrality.ai>"]
+edition = "2018"
+
+[dependencies]
+safe-mix = { version = "1.0", default-features = false }
+parity-codec = { version = "3.1", default-features = false, features = ["derive"] }
+primitives = { package = "substrate-primitives", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+client = { package = "substrate-client", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+rstd = { package = "sr-std", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+runtime-primitives = { package = "sr-primitives", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+offchain-primitives = { package = "substrate-offchain-primitives", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+consensus_authorities = { package = "substrate-consensus-authorities", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+version = { package = "sr-version", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+support = { package = "srml-support", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+aura = { package = "srml-aura", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+consensus = { package = "srml-consensus", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+contract = { package= "srml-contract", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+executive = { package = "srml-executive", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+grandpa = { package = "srml-grandpa", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+indices = { package = "srml-indices", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+session = { package = "srml-session", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+staking = { package = "srml-staking", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+system = { package = "srml-system", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+timestamp = { package = "srml-timestamp", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+sudo = { package = "srml-sudo", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+consensus_aura = { package = "substrate-consensus-aura-primitives", git = "https://github.com/cennznet/plug-blockchain", branch = "stable", default-features = false }
+serde = { version = "1.0", optional = true }
+cennznet-primitives = {git = "https://github.com/cennznet/cennznet", branch = "stable", default-features = false }
+generic-asset = { package = "prml-generic-asset", git = "https://github.com/cennznet/cennznet", branch = "stable", default-features = false }
+fees = { package = "prml-fees", git = "https://github.com/cennznet/cennznet", branch = "stable", default-features = false }
+cennzx-spot = { package = "crml-cennzx-spot", git = "https://github.com/cennznet/cennznet", branch = "stable", default-features = false }
+
+[features]
+default = ["std"]
+core = [
+	"contract/core",
+]
+std = [
+	"parity-codec/std",
+	"primitives/std",
+	"rstd/std",
+	"runtime-primitives/std",
+	"support/std",
+	"aura/std",
+	"consensus/std",
+	"contract/std",
+	"executive/std",
+	"grandpa/std",
+	"indices/std",
+	"session/std",
+	"staking/std",
+	"system/std",
+	"timestamp/std",
+	"sudo/std",
+	"version/std",
+	"cennznet-primitives/std",
+	"serde/std",
+	"safe-mix/std",
+	"client/std",
+	"consensus_aura/std",
+	"serde",
+	"offchain-primitives/std",
+	"consensus_authorities/std",
+	"cennzx-spot/std",
+	"generic-asset/std",
+	"fees/std",
+]
