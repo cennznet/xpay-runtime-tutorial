@@ -103,11 +103,11 @@ decl_module! {
 				// Different asset, CENNZX-Spot transfer
 
 				<cennzx_spot::Module<T>>::make_asset_swap_output(
-					&origin,             	// buyer
-					&seller,             	// recipient
-					&paying_asset_id,  		// asset_sold
-					&item_price.0,       	// asset_bought
-					item_price.1,       	// buy_amount
+					&origin,                  // buyer
+					&seller,                  // recipient
+					&paying_asset_id,         // asset_sold
+					&item_price.0,            // asset_bought
+					total_price_amount,       // buy_amount
 					max_total_paying_amount,  // max_paying_amount
 					<cennzx_spot::Module<T>>::fee_rate() // fee_rate
 				)?;
