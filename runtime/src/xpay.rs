@@ -96,7 +96,7 @@ decl_module! {
 			if item_price.0 == paying_asset_id {
 				// Same asset, GA transfer
 
-				ensure!(total_price_amount < max_total_paying_amount, "User paying price too low");
+				ensure!(total_price_amount <= max_total_paying_amount, "User paying price too low");
 
 				<generic_asset::Module<T>>::make_transfer_with_event(&item_price.0, &origin, &seller, total_price_amount)?;
 			} else {
