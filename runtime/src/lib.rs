@@ -4,6 +4,7 @@
 
 // `construct_runtime!` does a lot of recursion and requires us to increase the limit to 256.
 #![recursion_limit="512"]
+#![allow(deprecated)]
 
 pub use cennznet_primitives::{
 	AccountId, AccountIndex, AuthorityId, AuthoritySignature, Balance, BlockNumber, CennznetExtrinsic, Hash, Index,
@@ -234,6 +235,8 @@ impl cennzx_spot::Trait for Runtime {
 	type Call = Call;
 	type Event = Event;
 	type ExchangeAddressGenerator = ExchangeAddressGenerator<Self>;
+	type BalanceToU128 = Balance;
+	type U128ToBalance = Balance;
 }
 
 impl xpay::Trait for Runtime {
